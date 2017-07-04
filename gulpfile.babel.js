@@ -76,7 +76,10 @@ gulp.task('static', () => {
 gulp.task('serve', ['styles', 'scripts', 'static'], () => {
   browserSync({
     notify: false,
-    proxy: DEV_URL
+    proxy: DEV_URL,
+    snippetOptions: {
+      ignorePaths: 'wordpress/wp-admin/**'
+    }
   });
 
   gulp.watch(['src/sass/**/*.{scss,css}'], ['styles']);
