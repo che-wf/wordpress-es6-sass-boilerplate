@@ -1,3 +1,12 @@
+node_modules/
+.tmp/
+
 public/wp-config.php
 public/wp-content/uploads/*
 !public/wp-content/uploads/.keep
+
+public/wp-content/themes/*/js/
+public/wp-content/themes/*/css/
+public/wp-content/themes/*/inc/
+public/wp-content/themes/*/*.php
+public/wp-content/themes/*/*/*.php
