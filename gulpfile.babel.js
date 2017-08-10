@@ -79,7 +79,8 @@ gulp.task('serve', ['styles', 'scripts', 'static'], () => {
     proxy: DEV_URL,
     snippetOptions: {
       ignorePaths: 'wordpress/wp-admin/**'
-    }
+    },
+    reloadDelay: 100
   });
 
   gulp.watch(['src/sass/**/*.{scss,css}'], ['styles']);
