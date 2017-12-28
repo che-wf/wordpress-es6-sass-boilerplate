@@ -8,7 +8,7 @@ import source from 'vinyl-source-stream';
 import buffer from 'vinyl-buffer';
 import path from 'path';
 import del from 'del';
-import handlebars from 'gulp-compile-handlebars';
+import notifier from 'node-notifier';
 
 const DEST_FOLDER = 'public/wp-content/themes/my-theme';
 const DEV_URL = 'http://wordpress.test';
@@ -20,8 +20,16 @@ const $ = gulploadplugins({
 const argv = yargs.argv;
 
 function handleError(error) {
-  $.util.log(error.message);
-  $.util.log(error.codeFrame);
+  $.util.log('⚠️ ⚠️ ⚠️');
+  $.util.log($.util.colors.magenta(error.message));
+  if(error.codeFrame) {
+    $.util.log(error.codeFrame);
+  }
+  const fileName = error.filename || error.file;
+  notifier.notify({
+    title: `Error: ${fileName.split('/').pop()}`,
+    message: error.message.split(':').slice(1)
+  });
   this.emit('end');
 }
 
@@ -38,7 +46,7 @@ gulp.task('styles', () => {
      }))
     .pipe($.sass({
       precision: 10
-    }).on('error', $.sass.logError))
+    }).on('error', handleError))
     .pipe($.autoprefixer())
     .pipe(gulp.dest('.tmp'))
     // Concatenate and minify styles if production mode (via gulp styles --production)
