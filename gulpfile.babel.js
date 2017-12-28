@@ -76,6 +76,12 @@ gulp.task('scripts', () => {
     .pipe($.size({title: 'app.js'}));
 });
 
+// a task that ensures the `scripts` task is complete before reloading browsers
+gulp.task('scripts-reloader', ['scripts'], (done) => {
+  browserSync.reload();
+  done();
+});
+
 gulp.task('static', () => {
   return gulp.src('src/**/*.{html,php,jpg,jpeg,png,gif,webp,mp4,svg,ico,eot,ttf,woff,woff2,otf}').pipe(gulp.dest(DEST_FOLDER));
 });
@@ -87,12 +93,11 @@ gulp.task('serve', ['styles', 'scripts', 'static'], () => {
     proxy: DEV_URL,
     snippetOptions: {
       ignorePaths: 'wordpress/wp-admin/**'
-    },
-    reloadDelay: 100
+    }
   });
 
   gulp.watch(['src/sass/**/*.{scss,css}'], ['styles']);
-  gulp.watch(['src/js/**/*.js'], ['scripts']).on('change', browserSync.reload);
+  gulp.watch(['src/js/**/*.js'], ['scripts-reloader']);
   gulp.watch(['src/**/*.{html,php,jpg,jpeg,png,gif,webp,mp4,svg,ico,eot,ttf,woff,woff2,otf}'], ['static']).on('change', (event) => {
     browserSync.reload();
     if(event.type === 'deleted') {
