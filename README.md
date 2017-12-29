@@ -24,4 +24,11 @@ Add `--production` to any gulp task to activate production mode. In production m
 * `npm start` - alias for `gulp serve`
 * `npm build` - alias for `gulp build --production`
 
+## Update Wordpress
+```
+cd public/wordpress
+git fetch --tags
+git checkout tags/4.9.1
+```
+
 This project was initialized with the [wordpress-es6-sass-boilerplate](https://github.com/freinbichler/wordpress-es6-sass-boilerplate)
