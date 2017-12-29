@@ -26,17 +26,37 @@ function enqueue_script() {
     array(
       'ajaxurl' => admin_url('admin-ajax.php'),
       'nonce' => $scripts_nonce
-    ));
+    )
+  );
 }
 add_action('wp_enqueue_scripts', 'enqueue_script');
 
+function dequeue_script() {
+  if(!is_admin()) {
+    wp_deregister_script('jquery');
+    wp_deregister_script('wp-embed');
+  }
+}
+add_action('wp_enqueue_scripts', 'dequeue_script');
+
+add_filter('wpcf7_load_js', '__return_false');
+
 // Register image sizes
 function add_custom_sizes() {
-  add_image_size('full-hd-width', 1920);
-  add_image_size('medium-width', 860);
-  add_image_size('small-width', 430);
+  // add_image_size('full-hd-width', 1920);
+  // add_image_size('full-hd-cropped', 1920, 1080, true);
 }
 add_action('after_setup_theme', 'add_custom_sizes');
+
+function register_my_menu() {
+  register_nav_menus(
+    array(
+      'header-menu' => __('Hamburger Menu'),
+      'footer-menu' => __('Footer Menu')
+    )
+  );
+}
+add_action('init', 'register_my_menu');
 
 // Enable featured image for post
 add_theme_support('post-thumbnails');
@@ -56,7 +76,7 @@ add_filter('rest_jsonp_enabled', '__return_false');
 
 // Deactivate Theme Update Check
 function deactivateThemeUpdateCheck($r, $url) {
-  if ( 0 !== strpos( $url, 'http://api.wordpress.org/themes/update-check' ) )
+  if (0 !== strpos($url, 'http://api.wordpress.org/themes/update-check'))
     return $r; // Not a theme update request. Bail immediately.
 
   $themes = unserialize($r['body']['themes']);
@@ -82,10 +102,36 @@ add_filter('the_content', 'filter_ptags_on_images');
 
 if(function_exists('acf_add_options_page')) {
   $option_page = acf_add_options_page(array(
-    'page_title' => 'Theme General Settings',
-    'menu_title' => 'Theme Settings',
-    'menu_slug' => 'theme-general-settings',
+    'page_title' => 'General Content',
+    'menu_title' => 'General Content',
+    'menu_slug' => 'general-content',
     'capability' => 'edit_posts',
     'redirect' => false
   ));
 }
+
+// Allow Editors to edit Menu
+$role_object = get_role('editor');
+$role_object->add_cap('edit_theme_options');
+
+// Disable WP Emoticons
+function disable_emojicons_tinymce($plugins) {
+  if(is_array($plugins)) {
+    return array_diff($plugins, array('wpemoji'));
+  }else{
+    return array();
+  }
+}
+function disable_wp_emojicons() {
+  // all actions related to emojis
+  remove_action('admin_print_styles', 'print_emoji_styles');
+  remove_action('wp_head', 'print_emoji_detection_script', 7);
+  remove_action('admin_print_scripts', 'print_emoji_detection_script');
+  remove_action('wp_print_styles', 'print_emoji_styles');
+  remove_filter('wp_mail', 'wp_staticize_emoji_for_email');
+  remove_filter('the_content_feed', 'wp_staticize_emoji');
+  remove_filter('comment_text_rss', 'wp_staticize_emoji');
+  add_filter('tiny_mce_plugins', 'disable_emojicons_tinymce');
+  add_filter( 'emoji_svg_url', '__return_false' );
+}
+add_action('init', 'disable_wp_emojicons');
